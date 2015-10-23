@@ -14,4 +14,4 @@
 
 import sys
 sys.path.insert(0, "/var/www/ciwatch")
-from ciwatch import app as application
+from ciwatch.server import app as application

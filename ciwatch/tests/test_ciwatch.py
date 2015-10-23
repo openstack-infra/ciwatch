@@ -12,8 +12,17 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import pbr.version
+"""
+test_ciwatch
+----------------------------------
+
+Tests for `ciwatch` module.
+"""
+
+from ciwatch.tests import base
 
 
-__version__ = pbr.version.VersionInfo(
-    'ciwatch').version_string()
+class TestCiwatch(base.TestCase):
+
+    def test_something(self):
+        pass

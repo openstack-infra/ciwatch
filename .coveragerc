@@ -1,0 +1,6 @@
+[run]
+branch = True
+source = ciwatch
+
+[report]
+ignore_errors = True

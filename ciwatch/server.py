@@ -12,21 +12,20 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import re
+from flask import Flask
 
-from jinja2 import evalcontextfilter, Markup, escape
+app = Flask(__name__)
 
-from ciwatch.server import app
-
-
-_paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
+from ciwatch import views  # noqa
+from ciwatch import filters  # noqa
 
 
-@app.template_filter()
-@evalcontextfilter
-def nl2br(eval_ctx, value):
-    result = u'\n\n'.join(u'<p>%s</p>' % p.replace('\n', '<br>\n')
-                          for p in _paragraph_re.split(escape(value)))
-    if eval_ctx.autoescape:
-        result = Markup(result)
-    return result
+__version__ = "0.0.1"
+
+
+def main():
+    app.run(debug=True, host='0.0.0.0')
+
+
+if __name__ == '__main__':
+    main()

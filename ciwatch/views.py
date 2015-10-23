@@ -16,7 +16,7 @@ from flask import render_template
 from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.exceptions import abort
 
-from ciwatch import app
+from ciwatch.server import app
 from ciwatch.api import get_context
 from ciwatch.api import get_projects
 from ciwatch.cache import cached

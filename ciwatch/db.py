@@ -15,12 +15,12 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from ciwatch.config import cfg
-from ciwatch.config import get_projects
+from ciwatch.config import Config
 from ciwatch import models
 
 
-engine = create_engine(cfg.database.connection)
+config = Config()
+engine = create_engine(config.cfg.database.connection)
 Session = sessionmaker()
 Session.configure(bind=engine)
 models.Base.metadata.create_all(engine)
@@ -28,7 +28,7 @@ session = Session()
 
 
 def create_projects():
-    for name in get_projects():
+    for name in config.get_projects():
         get_or_create(models.Project,
                       commit_=False,
                       name=name)

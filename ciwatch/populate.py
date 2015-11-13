@@ -14,32 +14,35 @@
 
 import os
 
+from ciwatch.config import Config
 from ciwatch import db
 from ciwatch.events import add_event_to_db
 from ciwatch.events import parse_json_event
-from ciwatch.log import DATA_DIR
 
 
-def get_data():
+def get_data(datafile, projects):
     data = []
-    with open(os.path.join(DATA_DIR, 'third-party-ci.log')) as file_:
+    with open(datafile) as file_:
         for line in file_:
-            event = parse_json_event(line)
+            event = parse_json_event(line, projects)
             if event is not None:
                 data.append(event)
     return data
 
 
-def load_data():
-    data = get_data()
+def load_data(data):
     for event in data:
         add_event_to_db(event, commit_=False)
     db.session.commit()
 
 
 def main():
+    config = Config()
+    projects = config.get_projects()
+    datafile = os.path.join(config.DATA_DIR, 'third-party-ci.log')
     db.create_projects()
-    load_data()
+    data = get_data(datafile, projects)
+    load_data(data)
 
 
 if __name__ == '__main__':

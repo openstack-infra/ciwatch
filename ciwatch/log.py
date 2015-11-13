@@ -14,9 +14,9 @@
 
 import logging
 from logging import handlers
-import os
 
-from ciwatch.config import cfg
+from ciwatch.config import Config
+config = Config()
 
 
 def setup_logger(name):
@@ -38,9 +38,4 @@ def setup_logger(name):
     return logger
 
 
-DATA_DIR =\
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '/data'
-if cfg.Data.data_dir:
-    DATA_DIR = cfg.Data.data_dir
-
-logger = setup_logger(DATA_DIR + '/ci-watch.log')
+logger = setup_logger(config.DATA_DIR + '/ci-watch.log')

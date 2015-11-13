@@ -18,14 +18,10 @@ import paramiko
 import re
 import time
 
+from ciwatch.config import Config
 from ciwatch import db
-from ciwatch import models
-
-from ciwatch.log import DATA_DIR
 from ciwatch.log import logger
-
-from ciwatch.config import cfg
-from ciwatch.config import get_projects
+from ciwatch import models
 
 
 def _process_project_name(project_name):
@@ -56,18 +52,18 @@ def _is_ci_user(name):
 
 
 # Check if this is a third party CI event
-def _is_valid(event):
+def _is_valid(event, projects):
     if (event.get('type', 'nill') == 'comment-added' and
             _is_ci_user(event['author'].get('name', '')) and
             _process_project_name(
-                event['change']['project']) in get_projects() and
+                event['change']['project']) in projects and
             event['change']['branch'] == 'master'):
         return True
     return False
 
 
-def _store_event(event):
-    with open(DATA_DIR + '/third-party-ci.log', 'a') as f:
+def _store_event(event, datadir):
+    with open(datadir + '/third-party-ci.log', 'a') as f:
         json.dump(event, f)
         f.write('\n')
     add_event_to_db(event)
@@ -75,7 +71,7 @@ def _store_event(event):
 
 
 class GerritEventStream(object):
-    def __init__(self):
+    def __init__(self, cfg):
 
         logger.debug('Connecting to %(host)s:%(port)d as '
                      '%(user)s using %(key)s',
@@ -110,14 +106,14 @@ class GerritEventStream(object):
         return self.stdout.readline()
 
 
-def parse_json_event(event):
+def parse_json_event(event, projects):
     try:
         event = json.loads(event)
     except Exception as ex:
         logger.error('Failed json.loads on event: %s', event)
         logger.exception(ex)
         return None
-    if _is_valid(event):
+    if _is_valid(event, projects):
         _process_event(event)
         logger.info('Parsed valid event: %s', event)
         return event
@@ -163,17 +159,18 @@ def add_event_to_db(event, commit_=True):
 
 
 def main():
+    config = Config()
     db.create_projects()  # This will make sure the database has projects in it
     while True:
         try:
-            events = GerritEventStream()
+            events = GerritEventStream(config.cfg)
         except paramiko.SSHException as ex:
             logger.exception('Error connecting to Gerrit: %s', ex)
             time.sleep(60)
         for event in events:
-            event = parse_json_event(event)
+            event = parse_json_event(event, config.get_projects())
             if event is not None:
-                _store_event(event)
+                _store_event(event, config.DATA_DIR)
 
 
 if __name__ == '__main__':

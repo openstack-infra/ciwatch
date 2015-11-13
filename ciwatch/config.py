@@ -17,22 +17,31 @@ import os
 from iniparse import INIConfig
 
 
-def get_config():
-    this_file = os.path.dirname(os.path.realpath(__file__))
-    this_dir = os.path.dirname(this_file)
-    conf_files = [os.path.join(this_dir, 'ci-watch.conf'),
-                  '/etc/ciwatch/ci-watch.conf']
-    # Read first existing conf file, ignore the rest
-    for conf_file in conf_files:
-        if os.path.exists(conf_file):
-            return INIConfig(open(conf_file))
-    raise Exception('Could not read configuration from %s' % conf_files)
+class Config(object):
 
-cfg = get_config()
+    def __init__(self):
+        self.cfg = self.get_config()
+        if self.cfg.Data.data_dir:
+            self.DATA_DIR = self.cfg.Data.data_dir
+        else:
+            self.DATA_DIR = os.path.dirname(
+                os.path.dirname(os.path.abspath(__file__))) + '/data'
 
+    def get_config(self):
+        this_file = os.path.dirname(os.path.realpath(__file__))
+        this_dir = os.path.dirname(this_file)
+        conf_files = [os.path.join(this_dir, 'ci-watch.conf'),
+                      '/etc/ciwatch/ci-watch.conf']
+        # Read first existing conf file, ignore the rest
+        for conf_file in conf_files:
+            if os.path.exists(conf_file):
+                return INIConfig(open(conf_file))
+        else:
+            raise Exception(
+                'Could not read configuration from %s' % conf_files)
 
-def get_projects():
-    projects = []
-    for name in cfg.misc.projects.split(','):
-        projects.append(name)
-    return projects
+    def get_projects(self):
+        projects = []
+        for name in self.cfg.misc.projects.split(','):
+            projects.append(name)
+        return projects

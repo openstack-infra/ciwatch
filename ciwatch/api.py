@@ -13,14 +13,17 @@
 #    under the License.
 
 from collections import OrderedDict
-from datetime import datetime, timedelta
+from datetime import datetime
+from datetime import timedelta
 
 from flask import request
 from sqlalchemy import and_
 from sqlalchemy import desc
 
 from ciwatch import db
-from ciwatch.models import CiServer, Project, PatchSet
+from ciwatch.models import CiServer
+from ciwatch.models import PatchSet
+from ciwatch.models import Project
 
 
 TIME_OPTIONS = OrderedDict([  # Map time options to hours

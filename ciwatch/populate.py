@@ -15,7 +15,8 @@
 import os
 
 from ciwatch import db
-from ciwatch.events import parse_json_event, add_event_to_db
+from ciwatch.events import add_event_to_db
+from ciwatch.events import parse_json_event
 from ciwatch.log import DATA_DIR
 
 

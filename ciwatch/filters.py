@@ -14,7 +14,9 @@
 
 import re
 
-from jinja2 import evalcontextfilter, Markup, escape
+from jinja2 import escape
+from jinja2 import evalcontextfilter
+from jinja2 import Markup
 
 from ciwatch.server import app
 

@@ -12,15 +12,20 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from datetime import datetime
 import json
 import paramiko
-import time
-from datetime import datetime
 import re
+import time
 
-from ciwatch import db, models
-from ciwatch.log import logger, DATA_DIR
-from ciwatch.config import cfg, get_projects
+from ciwatch import db
+from ciwatch import models
+
+from ciwatch.log import DATA_DIR
+from ciwatch.log import logger
+
+from ciwatch.config import cfg
+from ciwatch.config import get_projects
 
 
 def _process_project_name(project_name):
@@ -54,7 +59,8 @@ def _is_ci_user(name):
 def _is_valid(event):
     if (event.get('type', 'nill') == 'comment-added' and
             _is_ci_user(event['author'].get('name', '')) and
-            _process_project_name(event['change']['project']) in get_projects() and
+            _process_project_name(
+                event['change']['project']) in get_projects() and
             event['change']['branch'] == 'master'):
         return True
     return False

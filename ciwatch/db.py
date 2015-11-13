@@ -15,8 +15,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from ciwatch.config import cfg
+from ciwatch.config import get_projects
 from ciwatch import models
-from ciwatch.config import cfg, get_projects
 
 
 engine = create_engine(cfg.database.connection)

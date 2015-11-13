@@ -16,8 +16,8 @@ from flask import Flask
 
 app = Flask(__name__)
 
-from ciwatch import views  # noqa
 from ciwatch import filters  # noqa
+from ciwatch import views  # noqa
 
 
 __version__ = "0.0.1"

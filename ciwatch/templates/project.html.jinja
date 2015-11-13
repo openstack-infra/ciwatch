@@ -39,16 +39,17 @@
       </div>
 
       <button id="verified-1-button" class="btn btn-default" type="button" data-toggle="button">Highlight Jenkins -1 votes</button>
+      <button id="verified1-button" class="btn btn-default" type="button" data-toggle="button">Highlight Jenkins +1 votes</button>
     </div>
-
-    <br>
 
     <div class="table">
       <table id="results" class="table table-bordered table-condensed">
 
         <colgroup></colgroup>
         {% for patch_set in patch_sets %}
-        {% if patch_set.verified is not none and not patch_set.verfied %}
+        {% if patch_set.verified %}
+        <colgroup class="verified1"></colgroup>
+        {% elif patch_set.verified is not none and not patch_set.verfied %}
         <colgroup class="verified-1"></colgroup>
         {% else %}
         <colgroup></colgroup>

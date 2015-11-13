@@ -13,21 +13,31 @@
  *    under the License.
  */
 
-var toggle1 = function () {
-  $(".verified-1").css("background-color", "#FAA");
-  $(this).one("click", toggle2);
+var toggle_verified_plus = function () {
+  var color = "#BFA";
+  if ($(this).hasClass("active")){
+    color = "";
+  }
+  $(".verified1").css("background-color", color);
 }
 
-var toggle2 = function () {
-  $(".verified-1").css("background-color", "");
-  $(this).one("click", toggle1);
+var toggle_verified_minus = function () {
+  var color = "#FAA";
+  if ($(this).hasClass("active")){
+    color = "";
+  }
+  $(".verified-1").css("background-color", color);
 }
+
 
 $(document).ready(function () {
   $("colgroup").each(function (i, elem) {
     if ($(elem).hasClass("verified-1")) {
       $("#results").find("td").filter(":nth-child(" + (i + 1) + ")").addClass("verified-1");
+    } else if ($(elem).hasClass("verified1")) {
+      $("#results").find("td").filter(":nth-child(" + (i + 1) + ")").addClass("verified1");
     }
   });
-  $("#verified-1-button").one("click", toggle1);
+  $("#verified1-button").on("click", toggle_verified_plus);
+  $("#verified-1-button").on("click", toggle_verified_minus);
 });

@@ -48,7 +48,7 @@ def _process_event(event):
 
 
 def _is_ci_user(name):
-    return 'CI' in name or 'Jenkins' in name
+    return 'CI' in name or 'Jenkins' in name or 'Bot' in name
 
 
 # Check if this is a third party CI event
@@ -139,7 +139,7 @@ def add_event_to_db(event, commit_=True):
     trusted = (event["author"]["username"] == "jenkins")
 
     if trusted and "approvals" in event:
-        if event["approvals"][0]["value"] in ("+1", "+2"):
+        if event["approvals"][0]["value"] in ("1", "2"):
             patch_set.verified = True
         elif event["approvals"][0]["value"] in ("-1", "-2"):
             patch_set.verified = False

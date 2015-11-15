@@ -33,7 +33,7 @@ def get_data(datafile, projects):
 def load_data(data):
     for event in data:
         add_event_to_db(event, commit_=False)
-    db.session.commit()
+    db.Session().commit()
 
 
 def main():

@@ -49,16 +49,16 @@ def _get_ci_info_for_patch_sets(ci, patch_sets):
 
 
 def get_projects():
-    return db.session.query(Project).order_by(Project.name).all()
+    return db.Session().query(Project).order_by(Project.name).all()
 
 
 def get_ci_servers():
-    return db.session.query(CiServer).order_by(
+    return db.Session().query(CiServer).order_by(
         desc(CiServer.trusted), CiServer.name).all()
 
 
 def get_patch_sets(project, since):
-    return db.session.query(PatchSet).filter(
+    return db.Session().query(PatchSet).filter(
         and_(PatchSet.project == project, PatchSet.created >= since)
         ).order_by(PatchSet.created.desc()).all()
 
@@ -71,7 +71,7 @@ def get_context():
     project = request.args.get('project', DEFAULT_PROJECT)
     time = request.args.get('time', DEFAULT_TIME_OPTION)
     since = datetime.now() - timedelta(hours=TIME_OPTIONS[time])
-    project = db.session.query(Project).filter(
+    project = db.Session().query(Project).filter(
         Project.name == project).one()
     patch_sets = get_patch_sets(project=project, since=since)
     results = OrderedDict()

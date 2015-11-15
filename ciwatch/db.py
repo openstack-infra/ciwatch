@@ -13,6 +13,7 @@
 #    under the License.
 
 from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 
 from ciwatch.config import Config
@@ -20,11 +21,10 @@ from ciwatch import models
 
 
 config = Config()
-engine = create_engine(config.cfg.database.connection)
-Session = sessionmaker()
-Session.configure(bind=engine)
+engine = create_engine(config.cfg.database.connection, pool_recycle=3600)
+session_factory = sessionmaker(bind=engine)
+Session = scoped_session(session_factory)
 models.Base.metadata.create_all(engine)
-session = Session()
 
 
 def create_projects():
@@ -32,10 +32,11 @@ def create_projects():
         get_or_create(models.Project,
                       commit_=False,
                       name=name)
-    session.commit()
+    Session().commit()
 
 
 def update_or_create_comment(commit_=True, **kwargs):
+    session = Session()
     comment = session.query(models.Comment).filter_by(
         ci_server_id=kwargs['ci_server_id'],
         patch_set_id=kwargs['patch_set_id']).scalar()
@@ -49,6 +50,7 @@ def update_or_create_comment(commit_=True, **kwargs):
 
 
 def get_or_create(model, commit_=True, **kwargs):
+    session = Session()
     result = session.query(model).filter_by(**kwargs).first()
     if not result:
         result = model(**kwargs)

@@ -121,7 +121,8 @@ def parse_json_event(event, projects):
 
 
 def add_event_to_db(event, commit_=True):
-    project = db.session.query(models.Project).filter(
+    session = db.Session()
+    project = session.query(models.Project).filter(
         models.Project.name == _process_project_name(
             event["change"]["project"])).one()
     patch_set = db.get_or_create(
@@ -155,7 +156,7 @@ def add_event_to_db(event, commit_=True):
                                     ci_server_id=ci_server.id,
                                     patch_set_id=patch_set.id)
     if commit_:
-        db.session.commit()
+        session.commit()
 
 
 def main():

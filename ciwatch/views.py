@@ -19,6 +19,7 @@ from werkzeug.exceptions import abort
 from ciwatch.api import get_context
 from ciwatch.api import get_projects
 from ciwatch.cache import cached
+from ciwatch import db
 from ciwatch.server import app
 
 
@@ -26,7 +27,11 @@ from ciwatch.server import app
 @app.route("/index")
 @app.route("/home")
 def home():
-    return render_template('index.html.jinja', projects=get_projects())
+    try:
+        return render_template(
+            'index.html.jinja', projects=get_projects())
+    finally:
+        db.Session.remove()
 
 
 @app.route("/project")
@@ -36,3 +41,5 @@ def project():
         return render_template("project.html.jinja", **get_context())
     except NoResultFound:
         abort(404)
+    finally:
+        db.Session.remove()

@@ -30,8 +30,8 @@ class Config(object):
     def get_config(self):
         this_file = os.path.dirname(os.path.realpath(__file__))
         this_dir = os.path.dirname(this_file)
-        conf_files = [os.path.join(this_dir, 'ci-watch.conf'),
-                      '/etc/ciwatch/ci-watch.conf']
+        conf_files = [os.path.join(this_dir, 'ciwatch.conf'),
+                      '/etc/ciwatch/ciwatch.conf']
         # Read first existing conf file, ignore the rest
         for conf_file in conf_files:
             if os.path.exists(conf_file):

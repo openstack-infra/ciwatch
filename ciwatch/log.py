@@ -38,4 +38,4 @@ def setup_logger(name):
     return logger
 
 
-logger = setup_logger(config.DATA_DIR + '/ci-watch.log')
+logger = setup_logger(config.DATA_DIR + '/ciwatch.log')

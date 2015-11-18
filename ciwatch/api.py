@@ -17,14 +17,8 @@ from datetime import datetime
 from datetime import timedelta
 
 from flask import request
-from sqlalchemy import and_
-from sqlalchemy import desc
 
 from ciwatch import db
-from ciwatch.models import CiServer
-from ciwatch.models import PatchSet
-from ciwatch.models import Project
-
 
 TIME_OPTIONS = OrderedDict([  # Map time options to hours
     ("24 hours", 24),
@@ -48,34 +42,18 @@ def _get_ci_info_for_patch_sets(ci, patch_sets):
     return ci_info
 
 
-def get_projects():
-    return db.Session().query(Project).order_by(Project.name).all()
-
-
-def get_ci_servers():
-    return db.Session().query(CiServer).order_by(
-        desc(CiServer.trusted), CiServer.name).all()
-
-
-def get_patch_sets(project, since):
-    return db.Session().query(PatchSet).filter(
-        and_(PatchSet.project == project, PatchSet.created >= since)
-        ).order_by(PatchSet.created.desc()).all()
-
-
 def get_time_options():
     return TIME_OPTIONS.keys()
 
 
 def get_context():
-    project = request.args.get('project', DEFAULT_PROJECT)
+    project_name = request.args.get('project', DEFAULT_PROJECT)
     time = request.args.get('time', DEFAULT_TIME_OPTION)
     since = datetime.now() - timedelta(hours=TIME_OPTIONS[time])
-    project = db.Session().query(Project).filter(
-        Project.name == project).one()
-    patch_sets = get_patch_sets(project=project, since=since)
+    project = db.get_project(project_name)
+    patch_sets = db.get_patch_sets(project, since)
     results = OrderedDict()
-    for ci in get_ci_servers():
+    for ci in db.get_ci_servers():
         ci_info = _get_ci_info_for_patch_sets(ci, patch_sets)
         if any(result for result in ci_info["results"]):
             results[ci.ci_owner] = results.get(ci.ci_owner, [])
@@ -86,5 +64,5 @@ def get_context():
             "time_option": time,
             "patch_sets": patch_sets,
             "project": project,
-            "projects": get_projects(),
+            "projects": db.get_projects(),
             "user_results": results}

@@ -12,21 +12,29 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
 import os
 
 from ciwatch.config import Config
 from ciwatch import db
 from ciwatch.events import add_event_to_db
-from ciwatch.events import parse_json_event
+from ciwatch.events import parse_event
+from ciwatch.log import logger
 
 
 def get_data(datafile, projects):
     data = []
     with open(datafile) as file_:
         for line in file_:
-            event = parse_json_event(line, projects)
-            if event is not None:
-                data.append(event)
+            try:
+                event = json.loads(line)
+            except Exception as ex:
+                logger.error('Failed json.loads on event: %s', event)
+                logger.exception(ex)
+                continue
+            parsed_event = parse_event(event, projects)
+            if parsed_event is not None:
+                data.append(parsed_event)
     return data
 
 

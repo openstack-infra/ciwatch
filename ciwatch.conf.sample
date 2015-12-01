@@ -8,6 +8,9 @@ gerrit_port = 29418
 debug = True
 data_dir = /var/data
 
+[Log]
+log_dir = /var/log/ciwatch
+
 [database]
 connection = sqlite:///:memory
 

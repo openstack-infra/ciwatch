@@ -21,6 +21,8 @@ class Config(object):
 
     def __init__(self):
         self.cfg = self.get_config()
+        if not self.cfg.Log.log_dir:
+            self.cfg.Log.log_dir = '/var/log/ciwatch'
         if self.cfg.Data.data_dir:
             self.DATA_DIR = self.cfg.Data.data_dir
         else:

@@ -17,7 +17,6 @@ from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.exceptions import abort
 
 from ciwatch.api import get_context
-from ciwatch.api import get_projects
 from ciwatch.cache import cached
 from ciwatch import db
 from ciwatch.server import app
@@ -29,7 +28,7 @@ from ciwatch.server import app
 def home():
     try:
         return render_template(
-            'index.html.jinja', projects=get_projects())
+            'index.html.jinja', projects=db.get_projects())
     finally:
         db.Session.remove()
 

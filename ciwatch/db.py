@@ -12,9 +12,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from sqlalchemy import and_
 from sqlalchemy import create_engine
+from sqlalchemy import desc
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
+
 
 from ciwatch.config import Config
 from ciwatch import models
@@ -58,3 +61,24 @@ def get_or_create(model, commit_=True, **kwargs):
         if commit_:
             session.commit()
     return result
+
+
+def get_projects():
+    return Session().query(models.Project).order_by(models.Project.name).all()
+
+
+def get_ci_servers():
+    return Session().query(models.CiServer).order_by(
+        desc(models.CiServer.trusted), models.CiServer.name).all()
+
+
+def get_patch_sets(project, since):
+    return Session().query(models.PatchSet).filter(
+        and_(models.PatchSet.project == project,
+             models.PatchSet.created >= since)
+        ).order_by(models.PatchSet.created.desc()).all()
+
+
+def get_project(project_name):
+    return Session().query(models.Project).filter(
+        models.Project.name == project_name).one()

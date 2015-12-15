@@ -23,9 +23,22 @@ from ciwatch import db
 from ciwatch.log import logger
 from ciwatch import models
 
+pipeline_pattern = re.compile("\((.*)\spipeline\)")
+
+possible_results = "FAILURE|SUCCESS|NOT_REGISTERED|UNSTABLE"
+comment_pattern = re.compile("[-*]\s+([^\s*]+)\s+(http[^\s*]+) : (%s)" %
+                             possible_results)
+jenkins_check = "Jenkins check"
+
 
 def _process_project_name(project_name):
     return project_name.split('/')[-1]
+
+
+def is_jenkins_pipeline(line):
+    match = pipeline_pattern.search(line)
+    if match is not None:
+        return match.group(1)
 
 
 def _process_event(event):
@@ -33,11 +46,11 @@ def _process_event(event):
     # Find all the CIs voting in this comment
     lines = comment.splitlines()
     event['ci-status'] = {}
+    pipeline = is_jenkins_pipeline(lines[0])
+    if pipeline is not None:
+        event["author"]["name"] = event["author"]["name"] + ' ' + pipeline
     for line in lines:
-        possible_results = "FAILURE|SUCCESS|NOT_REGISTERED|UNSTABLE"
-        pattern = re.compile("[-*]\s+([^\s*]+)\s+(http[^\s*]+) : (%s)" %
-                             possible_results)
-        match = pattern.search(line)
+        match = comment_pattern.search(line)
         if match is not None:
             ci_name = match.group(1)
             log_url = match.group(2)
@@ -131,7 +144,7 @@ def add_event_to_db(event, commit_=True):
         commit_message=event['change']['commitMessage'],
         created=datetime.fromtimestamp(
             int(event['patchSet']['createdOn'])))
-    trusted = (event["author"]["username"] == "jenkins")
+    trusted = (event["author"]["name"] == jenkins_check)
 
     if trusted and "approvals" in event:
         if event["approvals"][0]["value"] in ("1", "2"):

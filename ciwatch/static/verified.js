@@ -33,9 +33,9 @@ var toggle_verified_minus = function () {
 $(document).ready(function () {
   $("colgroup").each(function (i, elem) {
     if ($(elem).hasClass("verified-1")) {
-      $("#results").find("td").filter(":nth-child(" + (i + 1) + ")").addClass("verified-1");
+      $("#results").find("td:nth-child(" + (i + 1) + ")").addClass("verified-1");
     } else if ($(elem).hasClass("verified1")) {
-      $("#results").find("td").filter(":nth-child(" + (i + 1) + ")").addClass("verified1");
+      $("#results").find("td:nth-child(" + (i + 1) + ")").addClass("verified1");
     }
   });
   $("#verified1-button").on("click", toggle_verified_plus);

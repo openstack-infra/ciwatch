@@ -128,19 +128,22 @@ def add_event_to_db(event, commit_=True):
 
 def main():
     config = Config()
-    db.create_projects()  # This will make sure the database has projects in it
+    datadir = config.get('Data', 'data_dir')
+    projects = config.get('misc', 'projects').split(',')
+
+    db.create_projects(projects)
+
     gerrit = Gerrit(
-        hostname=config.cfg.AccountInfo.gerrit_host,
-        username=config.cfg.AccountInfo.gerrit_username,
-        port=int(config.cfg.AccountInfo.gerrit_port),
-        keyfile=config.cfg.AccountInfo.gerrit_ssh_key
-    )
+        hostname=config.get('AccountInfo', 'gerrit_host'),
+        username=config.get('AccountInfo', 'gerrit_username'),
+        port=int(config.get('AccountInfo', 'gerrit_port')),
+        keyfile=config.get('AccountInfo', 'gerrit_ssh_key'))
     gerrit.startWatching()
     while True:
         event = gerrit.getEvent()[1]
-        parsed_event = parse_event(event, config.get_projects())
+        parsed_event = parse_event(event, projects)
         if parsed_event is not None:
-            _store_event(parsed_event, config.DATA_DIR)
+            _store_event(parsed_event, datadir)
 
 if __name__ == '__main__':
     main()

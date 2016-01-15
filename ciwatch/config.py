@@ -1,4 +1,5 @@
 # Copyright (c) 2015 Tintri. All rights reserved.
+# Copyright (c) 2016 IBM Corporation
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -13,37 +14,69 @@
 #    under the License.
 
 import os
+from six.moves.configparser import ConfigParser
 
-from iniparse import INIConfig
+
+class CanNotReadConfigException(Exception):
+    pass
+
+
+class ConfigOptionMissingException(Exception):
+    pass
 
 
 class Config(object):
 
-    def __init__(self):
-        self.cfg = self.get_config()
-        if not self.cfg.Log.log_dir:
-            self.cfg.Log.log_dir = '/var/log/ciwatch'
-        if self.cfg.Data.data_dir:
-            self.DATA_DIR = self.cfg.Data.data_dir
-        else:
-            self.DATA_DIR = os.path.dirname(
-                os.path.dirname(os.path.abspath(__file__))) + '/data'
+    def __init__(self, locations=['/etc/ciwatch/ciwatch.conf',
+                                  '~/.ciwatch.conf']):
+        self.cfg = ConfigParser()
+        self._set_defaults()
+        self._read(locations)
 
-    def get_config(self):
-        this_file = os.path.dirname(os.path.realpath(__file__))
-        this_dir = os.path.dirname(this_file)
-        conf_files = [os.path.join(this_dir, 'ciwatch.conf'),
-                      '/etc/ciwatch/ciwatch.conf']
-        # Read first existing conf file, ignore the rest
-        for conf_file in conf_files:
-            if os.path.exists(conf_file):
-                return INIConfig(open(conf_file))
-        else:
-            raise Exception(
-                'Could not read configuration from %s' % conf_files)
+    def _set_defaults(self):
+        self._set_default('AccountInfo', 'gerrit_host', 'review.openstack.org')
+        self._set_default('AccountInfo', 'gerrit_port', 29418)
+        self._set_default('Data', 'data_dir', '/var/lib/ciwatch')
+        self._set_default('Log', 'log_dir', '/var/log/ciwatch')
+        self._set_default('database', 'connection', 'sqlite://')
+        self._set_default('misc', 'projects', ','.join([
+            'cinder',
+            'devstack',
+            'ironic',
+            'manila'
+            'murano',
+            'neutron',
+            'neutron-lbaas',
+            'nova',
+            'octavia',
+            'os-brick',
+            'rally',
+            'swift',
+        ]))
 
-    def get_projects(self):
-        projects = []
-        for name in self.cfg.misc.projects.split(','):
-            projects.append(name)
-        return projects
+    def _read(self, locations):
+        if not isinstance(locations, list):
+            locations = [locations]
+        locations = [os.path.expanduser(x) for x in locations]
+
+        files_loaded = self.cfg.read(locations)
+        if files_loaded == []:
+            raise CanNotReadConfigException('Locations tried: %s' % locations)
+        # TODO(mmedvede): log.debug('Read config from %s' % files_loaded)
+
+    def _set_default(self, section, option, value):
+        if not self.cfg.has_section(section):
+            self.cfg.add_section(section)
+        if not self.cfg.has_option(section, option):
+            self.cfg.set(section, option, value)
+
+    # ConfigParser in Python 3 provides fallback form for free. Implement our
+    # own for Python 2.7.
+    def get(self, section, option, fallback=None):
+        if (self.cfg.has_section(section) and
+                self.cfg.has_option(section, option)):
+            return self.cfg.get(section, option)
+        elif fallback is not None:
+            return fallback
+        else:
+            raise ConfigOptionMissingException('%s.%s' % (section, option))

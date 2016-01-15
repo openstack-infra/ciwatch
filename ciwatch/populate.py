@@ -46,9 +46,10 @@ def load_data(data):
 
 def main():
     config = Config()
-    projects = config.get_projects()
-    datafile = os.path.join(config.DATA_DIR, 'third-party-ci.log')
-    db.create_projects()
+    projects = config.get('misc', 'projects').split(',')
+    datadir = config.get('Data', 'data_dir')
+    datafile = os.path.join(datadir, 'third-party-ci.log')
+    db.create_projects(projects)
     data = get_data(datafile, projects)
     load_data(data)
 

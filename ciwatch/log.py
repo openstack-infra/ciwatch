@@ -16,7 +16,6 @@ import logging
 from logging import handlers
 
 from ciwatch.config import Config
-config = Config()
 
 
 def setup_logger(name):
@@ -38,4 +37,4 @@ def setup_logger(name):
     return logger
 
 
-logger = setup_logger(config.cfg.Log.log_dir + '/ciwatch.log')
+logger = setup_logger(Config().get('Log', 'log_dir') + '/ciwatch.log')

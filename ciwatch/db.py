@@ -24,14 +24,14 @@ from ciwatch import models
 
 
 config = Config()
-engine = create_engine(config.cfg.database.connection, pool_recycle=3600)
+engine = create_engine(config.get('database', 'connection'), pool_recycle=3600)
 session_factory = sessionmaker(bind=engine)
 Session = scoped_session(session_factory)
 models.Base.metadata.create_all(engine)
 
 
-def create_projects():
-    for name in config.get_projects():
+def create_projects(projects):
+    for name in projects:
         get_or_create(models.Project,
                       commit_=False,
                       name=name)

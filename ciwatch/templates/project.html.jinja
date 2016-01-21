@@ -49,7 +49,7 @@
         {% for patch_set in patch_sets %}
         {% if patch_set.verified %}
         <colgroup class="verified1"></colgroup>
-        {% elif patch_set.verified is not none and not patch_set.verfied %}
+        {% elif patch_set.verified is not none %}
         <colgroup class="verified-1"></colgroup>
         {% else %}
         <colgroup></colgroup>

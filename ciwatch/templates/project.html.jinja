@@ -40,6 +40,7 @@
 
       <button id="verified-1-button" class="btn btn-default" type="button" data-toggle="button">Highlight Jenkins -1 votes</button>
       <button id="verified1-button" class="btn btn-default" type="button" data-toggle="button">Highlight Jenkins +1 votes</button>
+      <button id="select-button" class="btn btn-default" type="button" data-toggle="button">Select</button>
     </div>
 
     <div class="table">
@@ -49,7 +50,7 @@
         {% for patch_set in patch_sets %}
         {% if patch_set.verified %}
         <colgroup class="verified1"></colgroup>
-        {% elif patch_set.verified is not none and not patch_set.verfied %}
+        {% elif patch_set.verified is not none %}
         <colgroup class="verified-1"></colgroup>
         {% else %}
         <colgroup></colgroup>
@@ -57,21 +58,22 @@
         {% endfor %}
 
         <tbody>
-
           <tr>
             <td>Patch Set</td>
             {% for patch_set in patch_sets %}
             <td style="text-align:center;">
               <a href="https://review.openstack.org/#/c/{{ "/".join(patch_set.ref.split("/")[-2:]) }}"
-                 data-toggle="popover" data-html="true" data-placement="bottom" title="Commit Message" 
+                 data-toggle="popover" data-html="true" data-placement="bottom" title="Commit Message"
                  data-content="{{ patch_set.commit_message|nl2br }}">
                 <span class="fa fa-external-link"></span>
               </a>
             </td>
             {% endfor %}
           </tr>
+        </tbody>
 
-          {% for owner, results in user_results.iteritems() %}
+        {% for owner, results in user_results.iteritems() %}
+        <tbody>
           <tr class="ci-user"><td colspan="{{ patch_sets|length + 1}}" class="ci-user">{{ owner.name }}</td></tr>
           {% for ci in results %}
           <tr>
@@ -96,8 +98,8 @@
           </tr>
           {% endfor %}
           <tr class="blank-row"></tr>
-          {% endfor %}
         </tbody>
+        {% endfor %}
       </table>
     </div>
 
@@ -105,6 +107,7 @@
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script src="{{ url_for('static', filename='hover.js') }}"></script>
     <script src="{{ url_for('static', filename='verified.js') }}"></script>
+    <script src="{{ url_for('static', filename='compare.js') }}"></script>
 
   </body>
 </html>

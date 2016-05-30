@@ -6,6 +6,10 @@ table.table {
   background-color: #EEE;
 }
 
+.selected {
+  background-color: #EEF;
+}
+
 .failure {
   color: #C00;
   font-weight: bold;

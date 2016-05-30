@@ -45,7 +45,7 @@ def _process_event(event):
     # Find all the CIs voting in this comment
     lines = comment.splitlines()
     event['ci-status'] = {}
-    pipeline = is_jenkins_pipeline(lines[0])
+    pipeline = is_jenkins_pipeline(lines[2])
     if pipeline is not None:
         event["author"]["name"] = event["author"]["name"] + ' ' + pipeline
     for line in lines:

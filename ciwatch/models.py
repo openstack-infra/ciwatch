@@ -77,7 +77,7 @@ class CiServer(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(128))
 
-    # Official OpenStack CIs are trusted (e.g., Jenkins)
+    # Official OpenStack CIs are trusted
     trusted = Column(Boolean, default=False)
 
     ci_owner_id = Column(Integer, ForeignKey('ci_owners.id'))

@@ -27,7 +27,7 @@ pipeline_pattern = re.compile("\((.*)\spipeline\)")
 possible_results = "FAILURE|SUCCESS|NOT_REGISTERED|UNSTABLE"
 comment_pattern = re.compile("[-*]\s+([^\s*]+)\s+(http[^\s*]+) : (%s)" %
                              possible_results)
-trusted_author_names = ["Jenkins check"]
+trusted_author_names = ["Jenkins check", "Zuul check"]
 
 
 def _process_project_name(project_name):
@@ -60,7 +60,7 @@ def _process_event(event):
 
 
 def _is_ci_user(name):
-    ci_keywords = ['CI', 'Jenkins', 'Bot']
+    ci_keywords = ['CI', 'Jenkins', 'Bot', 'Zuul']
     return any(word in name for word in ci_keywords)
 
 

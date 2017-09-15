@@ -27,14 +27,14 @@ pipeline_pattern = re.compile("\((.*)\spipeline\)")
 possible_results = "FAILURE|SUCCESS|NOT_REGISTERED|UNSTABLE"
 comment_pattern = re.compile("[-*]\s+([^\s*]+)\s+(http[^\s*]+) : (%s)" %
                              possible_results)
-jenkins_check = "Jenkins check"
+trusted_author_names = ["Jenkins check"]
 
 
 def _process_project_name(project_name):
     return project_name.split('/')[-1]
 
 
-def is_jenkins_pipeline(line):
+def extract_pipeline_name(line):
     match = pipeline_pattern.search(line)
     if match is not None:
         return match.group(1)
@@ -45,7 +45,7 @@ def _process_event(event):
     # Find all the CIs voting in this comment
     lines = comment.splitlines()
     event['ci-status'] = {}
-    pipeline = is_jenkins_pipeline(lines[2])
+    pipeline = extract_pipeline_name(lines[2])
     if pipeline is not None:
         event["author"]["name"] = event["author"]["name"] + ' ' + pipeline
     for line in lines:
@@ -60,7 +60,8 @@ def _process_event(event):
 
 
 def _is_ci_user(name):
-    return 'CI' in name or 'Jenkins' in name or 'Bot' in name
+    ci_keywords = ['CI', 'Jenkins', 'Bot']
+    return any(word in name for word in ci_keywords)
 
 
 # Check if this is a third party CI event
@@ -101,7 +102,7 @@ def add_event_to_db(event, commit_=True):
         commit_message=event['change']['commitMessage'],
         created=datetime.fromtimestamp(
             int(event['patchSet']['createdOn'])))
-    trusted = (event["author"]["name"] == jenkins_check)
+    trusted = (event["author"]["name"] in trusted_author_names)
 
     if trusted and "approvals" in event:
         if event["approvals"][0]["value"] in ("1", "2"):
